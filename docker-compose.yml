@@ -1,0 +1,38 @@
+version: '3.7'
+services:
+  mongodb:
+    container_name: hubspot_demo_mongodb
+    image: mongo:latest
+    expose:
+      - 27017
+    volumes:
+      - hubspot_mongodb_data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    container_name: hubspot_demo_rabbitmq
+
+  app:
+    container_name: hubspot_demo_app
+    build:
+      dockerfile: hubspot.dockerfile
+      context: ./
+    ports:
+      - "3000:3000"
+    command: python -u app.py
+
+  deals_worker:
+    container_name: hubspot_deals_worker
+    build:
+      dockerfile: hubspot.dockerfile
+      context: ./
+    environment: 
+      - PYTHONPATH=/hubspot
+    command: python -u workers/deals.py
+    restart: always
+
+volumes:
+  hubspot_mongodb_data:
