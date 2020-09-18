@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Internal Server Error{% endblock %} 
+
+{% block content %}
+    
+<div class="row">
+    <h1 class="title">An unexpected error has occured</h1>
+</div>
+<div class="row">
+    <p>Error details: {{ e.message }}</p>
+</div>
+<div class="row">
+    <p>The administrator has been notified. Sorry for the inconvenience!</p>
+</div>
+<div class="row">
+    <a href="/">Back</a>
+</div>
+
+{% endblock %}

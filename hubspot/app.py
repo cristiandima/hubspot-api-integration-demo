@@ -9,9 +9,11 @@ from flask.json import jsonify
 
 import config
 from models import models
+from errors import errors
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
+app.register_error_handler(errors.OAuthError, errors.handle_oauth_error)
 
 
 def pub_deal_sync(user):
@@ -44,11 +46,16 @@ def auth_hubapi():
         "code": code,
     }
     r = requests.post("https://api.hubapi.com/oauth/v1/token", data=data)
+    if not r.ok:
+        raise errors.OAuthError("Cannot get token from hubapi")
+
     token_resp = r.json()
 
     r = requests.get(
         f"https://api.hubapi.com/oauth/v1/access-tokens/{token_resp['access_token']}"
     )
+    if not r.ok:
+        raise errors.OAuthError("Cannot get user information from hubapi")
     user_resp = r.json()
 
     models.User.objects(user_id=user_resp["hub_id"]).modify(
